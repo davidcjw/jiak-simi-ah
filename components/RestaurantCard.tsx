@@ -40,12 +40,12 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
     <div
       className={`bg-white rounded-2xl overflow-hidden shadow-sm border transition-all hover:shadow-md ${
         highlight
-          ? "border-orange-400 ring-2 ring-orange-300 shadow-orange-100"
-          : "border-orange-100"
+          ? "border-red-500 ring-2 ring-red-300 shadow-red-100"
+          : "border-green-100"
       }`}
     >
       {/* Photo */}
-      <div className="relative h-40 bg-orange-50">
+      <div className="relative h-40 bg-green-50">
         {r.photoReference ? (
           <Image
             src={r.photoReference}
@@ -70,7 +70,7 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
           </span>
         )}
         {highlight && (
-          <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
             ✨ Picked!
           </span>
         )}
@@ -84,7 +84,7 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
         </div>
 
         {r.primaryType && (
-          <span className="inline-block bg-orange-50 text-orange-600 text-xs px-2 py-0.5 rounded-full border border-orange-100">
+          <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full border border-green-100">
             {r.primaryType}
           </span>
         )}
@@ -108,7 +108,7 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
                 href={r.websiteUri}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-orange-500 hover:underline"
+                className="text-xs text-green-700 hover:underline"
               >
                 Website
               </a>
@@ -117,7 +117,7 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
               href={r.googleMapsUri}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs bg-orange-500 text-white px-2 py-1 rounded-lg hover:bg-orange-600 transition-colors"
+              className="text-xs bg-green-800 text-white px-2 py-1 rounded-lg hover:bg-green-900 transition-colors"
             >
               Maps →
             </a>

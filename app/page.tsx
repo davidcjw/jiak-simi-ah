@@ -86,37 +86,37 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-amber-50">
+    <main className="min-h-screen bg-stone-100">
       {/* Header */}
-      <header className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-6 px-4 shadow-lg">
+      <header className="bg-gradient-to-r from-green-900 to-green-800 text-white py-6 px-4 shadow-lg">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-3xl font-black tracking-tight">
             🍜 Jiak Simi Ah?
           </h1>
-          <p className="text-orange-100 text-sm mt-1">
+          <p className="text-green-200 text-sm mt-1">
             Cannot decide what to eat? Let us settle for you lah!
           </p>
           {location && !locationError && (
-            <p className="text-orange-200 text-xs mt-1">📍 Using your location in Singapore</p>
+            <p className="text-green-300 text-xs mt-1">📍 Using your location in Singapore</p>
           )}
           {locationError && (
-            <p className="text-orange-200 text-xs mt-1">⚠️ {locationError}</p>
+            <p className="text-green-300 text-xs mt-1">⚠️ {locationError}</p>
           )}
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Filter Panel */}
-        <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
           <button
             onClick={() => setFiltersOpen((v) => !v)}
             className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer"
           >
-            <span className="font-bold text-orange-900">🔍 Filters</span>
-            <span className="text-orange-400 text-sm">{filtersOpen ? "▲ Hide" : "▼ Show"}</span>
+            <span className="font-bold text-green-900">🔍 Filters</span>
+            <span className="text-green-600 text-sm">{filtersOpen ? "▲ Hide" : "▼ Show"}</span>
           </button>
           {filtersOpen && (
-            <div className="px-5 pb-5 border-t border-orange-50">
+            <div className="px-5 pb-5 border-t border-green-50">
               <div className="pt-4">
                 <FilterPanel filters={filters} onChange={setFilters} disabled={loading} />
               </div>
@@ -128,7 +128,7 @@ export default function Home() {
         <button
           onClick={search}
           disabled={loading || !location}
-          className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-black text-xl py-5 rounded-2xl shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer"
+          className="w-full bg-amber-400 text-green-900 font-black text-xl py-5 rounded-2xl shadow-lg hover:shadow-xl hover:bg-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer"
         >
           {loading
             ? "Searching... 🔍"
@@ -147,7 +147,7 @@ export default function Home() {
         {searched && !loading && (
           <div className="space-y-4">
             {restaurants.length === 0 ? (
-              <div className="text-center py-12 text-orange-400">
+              <div className="text-center py-12 text-green-600">
                 <p className="text-4xl mb-3">😩</p>
                 <p className="font-semibold">Wah, nothing found lah!</p>
                 <p className="text-sm mt-1">Try widening your filters or radius.</p>
@@ -156,25 +156,25 @@ export default function Home() {
               <>
                 {/* Results header + quick actions */}
                 <div className="flex items-center justify-between">
-                  <p className="text-orange-700 font-semibold">
+                  <p className="text-green-800 font-semibold">
                     {restaurants.length} place{restaurants.length !== 1 ? "s" : ""} found!
                   </p>
                   <button
                     onClick={lucky}
-                    className="text-sm bg-yellow-400 text-yellow-900 font-bold px-3 py-1.5 rounded-full hover:bg-yellow-500 transition-colors cursor-pointer"
+                    className="text-sm bg-red-600 text-white font-bold px-3 py-1.5 rounded-full hover:bg-red-700 transition-colors cursor-pointer"
                   >
                     🎲 Feeling Lucky?
                   </button>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-2 bg-orange-100 p-1 rounded-xl">
+                <div className="flex gap-2 bg-green-100 p-1 rounded-xl">
                   <button
                     onClick={() => setTab("list")}
                     className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                       tab === "list"
-                        ? "bg-white text-orange-700 shadow-sm"
-                        : "text-orange-500 hover:text-orange-700"
+                        ? "bg-white text-green-800 shadow-sm"
+                        : "text-green-600 hover:text-green-800"
                     }`}
                   >
                     📋 List
@@ -183,8 +183,8 @@ export default function Home() {
                     onClick={() => setTab("spin")}
                     className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                       tab === "spin"
-                        ? "bg-white text-orange-700 shadow-sm"
-                        : "text-orange-500 hover:text-orange-700"
+                        ? "bg-white text-green-800 shadow-sm"
+                        : "text-green-600 hover:text-green-800"
                     }`}
                   >
                     🎰 Spin the Wheel
@@ -213,7 +213,7 @@ export default function Home() {
         )}
       </div>
 
-      <footer className="text-center py-8 text-xs text-orange-300">
+      <footer className="text-center py-8 text-xs text-stone-400">
         Made with ❤️ for hungry Singaporeans 🇸🇬
       </footer>
     </main>

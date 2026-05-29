@@ -66,10 +66,10 @@ export default function SpinWheel({ restaurants, onResult }: SpinWheelProps) {
       <div
         className={`w-full max-w-sm bg-white border-4 rounded-2xl p-6 text-center transition-all duration-150 ${
           spinning
-            ? "border-orange-400 shadow-lg shadow-orange-100"
+            ? "border-amber-400 shadow-lg shadow-amber-100"
             : done
-            ? "border-orange-500 shadow-xl shadow-orange-200"
-            : "border-orange-200"
+            ? "border-red-500 shadow-xl shadow-red-100"
+            : "border-green-200"
         }`}
       >
         <div className={`text-5xl mb-3 transition-all ${spinning ? "animate-bounce" : ""}`}>
@@ -89,7 +89,7 @@ export default function SpinWheel({ restaurants, onResult }: SpinWheelProps) {
               {current.reviewCount.toLocaleString()} reviews
             </p>
             {done && (
-              <p className="mt-2 text-orange-600 font-semibold text-sm animate-pulse">
+              <p className="mt-2 text-red-600 font-semibold text-sm animate-pulse">
                 Jiak this lah! 🎉
               </p>
             )}
@@ -102,12 +102,12 @@ export default function SpinWheel({ restaurants, onResult }: SpinWheelProps) {
       <button
         onClick={spin}
         disabled={spinning || restaurants.length === 0}
-        className="w-full max-w-sm bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-8 rounded-2xl text-lg shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+        className="w-full max-w-sm bg-amber-400 text-green-900 font-bold py-4 px-8 rounded-2xl text-lg shadow-lg hover:shadow-xl hover:bg-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
       >
         {spinning ? "Spinning... 🌀" : done ? "Spin Again! 🎰" : "🎰 Spin the Wheel!"}
       </button>
 
-      <p className="text-xs text-orange-400">
+      <p className="text-xs text-green-600">
         {restaurants.length} restaurant{restaurants.length !== 1 ? "s" : ""} in the pool
       </p>
     </div>
