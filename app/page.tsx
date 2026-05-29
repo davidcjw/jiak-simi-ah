@@ -1,65 +1,221 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import FilterPanel from "@/components/FilterPanel";
+import RestaurantCard from "@/components/RestaurantCard";
+import SpinWheel from "@/components/SpinWheel";
+import { FilterState, Location, Restaurant } from "@/lib/types";
+
+const DEFAULT_FILTERS: FilterState = {
+  radius: 1000,
+  priceLevels: [],
+  cuisines: [],
+  minRating: 3,
+  minReviews: 100,
+};
+
+const SG_CENTER: Location = { lat: 1.3521, lng: 103.8198 };
+
+type Tab = "list" | "spin";
 
 export default function Home() {
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [location, setLocation] = useState<Location | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [restaurants, setRestaurants] = useState<(Restaurant & { distanceKm: number })[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searched, setSearched] = useState(false);
+  const [pickedId, setPickedId] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("list");
+  const [filtersOpen, setFiltersOpen] = useState(true);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation not supported — using Singapore centre.");
+      setLocation(SG_CENTER);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {
+        setLocationError("Location denied — using Singapore centre.");
+        setLocation(SG_CENTER);
+      },
+      { timeout: 8000 }
+    );
+  }, []);
+
+  const search = useCallback(async () => {
+    const loc = location ?? SG_CENTER;
+    setLoading(true);
+    setError(null);
+    setPickedId(null);
+
+    try {
+      const res = await fetch("/api/places", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...filters, lat: loc.lat, lng: loc.lng }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to fetch restaurants");
+      }
+
+      const data = await res.json();
+      setRestaurants(data.restaurants ?? []);
+      setSearched(true);
+      setTab("list");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, location]);
+
+  const lucky = () => {
+    if (restaurants.length === 0) return;
+    const pick = restaurants[Math.floor(Math.random() * restaurants.length)];
+    setPickedId(pick.id);
+    setTab("list");
+    setTimeout(() => {
+      document.getElementById(`restaurant-${pick.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen bg-amber-50">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-6 px-4 shadow-lg">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl font-black tracking-tight">
+            🍜 Jiak Simi Ah?
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-orange-100 text-sm mt-1">
+            Cannot decide what to eat? Let us settle for you lah!
           </p>
+          {location && !locationError && (
+            <p className="text-orange-200 text-xs mt-1">📍 Using your location in Singapore</p>
+          )}
+          {locationError && (
+            <p className="text-orange-200 text-xs mt-1">⚠️ {locationError}</p>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </header>
+
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* Filter Panel */}
+        <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
+          <button
+            onClick={() => setFiltersOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <span className="font-bold text-orange-900">🔍 Filters</span>
+            <span className="text-orange-400 text-sm">{filtersOpen ? "▲ Hide" : "▼ Show"}</span>
+          </button>
+          {filtersOpen && (
+            <div className="px-5 pb-5 border-t border-orange-50">
+              <div className="pt-4">
+                <FilterPanel filters={filters} onChange={setFilters} disabled={loading} />
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+
+        {/* Search Button */}
+        <button
+          onClick={search}
+          disabled={loading || !location}
+          className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-black text-xl py-5 rounded-2xl shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer"
+        >
+          {loading
+            ? "Searching... 🔍"
+            : !location
+            ? "Getting location..."
+            : "Find Food! 🍽️"}
+        </button>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Results */}
+        {searched && !loading && (
+          <div className="space-y-4">
+            {restaurants.length === 0 ? (
+              <div className="text-center py-12 text-orange-400">
+                <p className="text-4xl mb-3">😩</p>
+                <p className="font-semibold">Wah, nothing found lah!</p>
+                <p className="text-sm mt-1">Try widening your filters or radius.</p>
+              </div>
+            ) : (
+              <>
+                {/* Results header + quick actions */}
+                <div className="flex items-center justify-between">
+                  <p className="text-orange-700 font-semibold">
+                    {restaurants.length} place{restaurants.length !== 1 ? "s" : ""} found!
+                  </p>
+                  <button
+                    onClick={lucky}
+                    className="text-sm bg-yellow-400 text-yellow-900 font-bold px-3 py-1.5 rounded-full hover:bg-yellow-500 transition-colors cursor-pointer"
+                  >
+                    🎲 Feeling Lucky?
+                  </button>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex gap-2 bg-orange-100 p-1 rounded-xl">
+                  <button
+                    onClick={() => setTab("list")}
+                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                      tab === "list"
+                        ? "bg-white text-orange-700 shadow-sm"
+                        : "text-orange-500 hover:text-orange-700"
+                    }`}
+                  >
+                    📋 List
+                  </button>
+                  <button
+                    onClick={() => setTab("spin")}
+                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                      tab === "spin"
+                        ? "bg-white text-orange-700 shadow-sm"
+                        : "text-orange-500 hover:text-orange-700"
+                    }`}
+                  >
+                    🎰 Spin the Wheel
+                  </button>
+                </div>
+
+                {tab === "list" && (
+                  <div className="grid gap-4">
+                    {restaurants.map((r) => (
+                      <div key={r.id} id={`restaurant-${r.id}`}>
+                        <RestaurantCard restaurant={r} highlight={r.id === pickedId} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {tab === "spin" && (
+                  <SpinWheel
+                    restaurants={restaurants}
+                    onResult={(r) => setPickedId(r.id)}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <footer className="text-center py-8 text-xs text-orange-300">
+        Made with ❤️ for hungry Singaporeans 🇸🇬
+      </footer>
+    </main>
   );
 }
