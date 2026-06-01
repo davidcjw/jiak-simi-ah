@@ -128,6 +128,11 @@ export async function POST(req: NextRequest) {
     })
     // Filter by minimum reviews client-side
     .filter((r) => r.reviewCount >= (minReviews ?? 0))
+    // Filter by price level client-side — the Places API doesn't strictly enforce this
+    .filter((r) => {
+      if (!priceLevels || priceLevels.length === 0) return true;
+      return r.priceLevel !== null && priceLevels.includes(r.priceLevel);
+    })
     // Sort by rating desc, then review count desc
     .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
 
