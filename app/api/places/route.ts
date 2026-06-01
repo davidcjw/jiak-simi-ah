@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     const cuisineMap = Object.fromEntries(CUISINES.map((c) => [c.id, c.placeTypes]));
     includedTypes = cuisines.flatMap((id: string) => cuisineMap[id] ?? []);
   } else {
-    includedTypes = ["restaurant", "food"];
+    includedTypes = ["restaurant"];
   }
 
   // Build price level filters
