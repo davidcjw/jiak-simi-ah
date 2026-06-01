@@ -17,6 +17,7 @@ const DEFAULT_FILTERS: FilterState = {
 const SG_CENTER: Location = { lat: 1.3521, lng: 103.8198 };
 
 type Tab = "list" | "spin";
+type SortBy = "rating" | "distance";
 
 export default function Home() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
@@ -29,6 +30,7 @@ export default function Home() {
   const [pickedId, setPickedId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("list");
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [sortBy, setSortBy] = useState<SortBy>("rating");
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -168,6 +170,24 @@ export default function Home() {
                   </button>
                 </div>
 
+                {/* Sort toggle */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-green-700 font-medium">Sort:</span>
+                  {(["rating", "distance"] as SortBy[]).map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setSortBy(opt)}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                        sortBy === opt
+                          ? "bg-green-800 text-white"
+                          : "bg-stone-200 text-green-700 hover:bg-stone-300"
+                      }`}
+                    >
+                      {opt === "rating" ? "⭐ Rating" : "📍 Distance"}
+                    </button>
+                  ))}
+                </div>
+
                 {/* Tabs */}
                 <div className="flex gap-2 bg-green-100 p-1 rounded-xl">
                   <button
@@ -194,11 +214,17 @@ export default function Home() {
 
                 {tab === "list" && (
                   <div className="grid gap-4">
-                    {restaurants.map((r) => (
-                      <div key={r.id} id={`restaurant-${r.id}`}>
-                        <RestaurantCard restaurant={r} highlight={r.id === pickedId} />
-                      </div>
-                    ))}
+                    {[...restaurants]
+                      .sort((a, b) =>
+                        sortBy === "distance"
+                          ? a.distanceKm - b.distanceKm
+                          : b.rating - a.rating || b.reviewCount - a.reviewCount
+                      )
+                      .map((r) => (
+                        <div key={r.id} id={`restaurant-${r.id}`}>
+                          <RestaurantCard restaurant={r} highlight={r.id === pickedId} />
+                        </div>
+                      ))}
                   </div>
                 )}
 
