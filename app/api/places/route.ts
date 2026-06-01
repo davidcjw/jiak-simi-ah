@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       },
     },
     maxResultCount: 20,
-    rankPreference: "POPULARITY",
+    rankPreference: "DISTANCE",
   };
 
   if (includedTypes.length > 0) {
