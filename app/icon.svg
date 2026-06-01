@@ -1,4 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#f97316"/>
-  <text y=".9em" font-size="80" x="10" fill="white">🍜</text>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532d"/>
+      <stop offset="100%" style="stop-color:#166534"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
+  <!-- Bowl base -->
+  <ellipse cx="50" cy="68" rx="26" ry="8" fill="#fbbf24"/>
+  <path d="M24 55 Q24 76 50 76 Q76 76 76 55 Z" fill="#fbbf24"/>
+  <!-- Bowl rim -->
+  <ellipse cx="50" cy="55" rx="26" ry="7" fill="#f59e0b"/>
+  <!-- Noodles -->
+  <path d="M34 54 Q40 48 46 54 Q52 60 58 54 Q64 48 66 54" stroke="#fff8e1" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M36 58 Q42 52 48 58 Q54 64 60 58 Q64 54 68 58" stroke="#fef3c7" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Chopsticks -->
+  <line x1="43" y1="28" x2="53" y2="58" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
+  <line x1="52" y1="26" x2="60" y2="56" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
+  <!-- Steam -->
+  <path d="M38 44 Q36 38 38 32 Q40 26 38 20" stroke="#86efac" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M50 42 Q48 36 50 30 Q52 24 50 18" stroke="#86efac" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8"/>
 </svg>
