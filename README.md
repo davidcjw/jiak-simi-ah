@@ -15,6 +15,7 @@ A Singapore food decider web app for people (and groups) who can't make up their
 |---|---|
 | 📍 Geolocation | Finds food near you; falls back to Singapore centre if denied |
 | 🔍 Smart filters | Cuisine (16 types), budget ($/$$/$$$$), min rating, min reviews, radius |
+| 🔃 Sort results | Toggle between top-rated or nearest-first ordering |
 | 🎰 Spin the Wheel | Animated slot-machine randomiser picks from your results |
 | 🎲 Feeling Lucky | Instant random pick with scroll-to-card highlight |
 | 🟢 Open/Closed | Live status so you don't walk somewhere closed |
