@@ -51,6 +51,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setPickedId(null);
+    setFiltersOpen(false);
 
     try {
       const res = await fetch("/api/places", {
