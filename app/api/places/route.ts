@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PlacesApiPlace, Restaurant } from "@/lib/types";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { CUISINES, PRICE_LEVEL_API_MAP, PRICE_LEVEL_MAP } from "@/lib/cuisines";
 
 const PLACES_API_URL = "https://places.googleapis.com/v1/places:searchNearby";
@@ -36,6 +37,15 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+  }
+
+  // Throttle abuse before hitting the paid Google Places API.
+  const rl = rateLimit(`places:${clientIp(req)}`, { limit: 30, windowMs: 60_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
   }
 
   const { lat, lng, radius, priceLevels, cuisines, minRating, minReviews } = await req.json();

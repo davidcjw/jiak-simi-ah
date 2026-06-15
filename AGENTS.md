@@ -79,3 +79,11 @@ npx tsc --noEmit
 ```
 
 Both must pass before considering a change ready.
+
+## API protection
+
+`app/api/places/route.ts` proxies the **paid** Google Places API, so it's guarded by
+`lib/ratelimit.ts` (`rateLimit`/`clientIp`): a per-IP rate limit (30/min → 429 +
+`Retry-After`) after the API-key check, before the Places call. The limiter is in-memory /
+per-instance (zero-dep) — for hard, edge-level protection add a **Vercel WAF rate-limit
+rule** (free on Hobby; blocks before the paid call runs).
