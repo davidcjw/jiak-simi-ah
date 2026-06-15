@@ -127,8 +127,10 @@ export async function POST(req: NextRequest) {
         types: p.types ?? [],
         primaryType: p.primaryTypeDisplayName?.text ?? "",
         isOpenNow: p.currentOpeningHours?.openNow ?? null,
+        // Route through our server-side proxy so the API key never reaches the
+        // browser (see app/api/photo/route.ts).
         photoReference: photoRef
-          ? `https://places.googleapis.com/v1/${photoRef}/media?maxHeightPx=400&maxWidthPx=600&key=${apiKey}`
+          ? `/api/photo?ref=${encodeURIComponent(photoRef)}`
           : null,
         googleMapsUri: p.googleMapsUri ?? `https://maps.google.com/?q=${placeLat},${placeLng}`,
         websiteUri: p.websiteUri ?? null,
