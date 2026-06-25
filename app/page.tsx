@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import FilterPanel from "@/components/FilterPanel";
 import RestaurantCard from "@/components/RestaurantCard";
 import SpinWheel from "@/components/SpinWheel";
+import GithubStarButton from "@/components/GithubStarButton";
+import { Card, Text, Button, Badge } from "@/lib/pulze-ds";
 import { FilterState, Location, Restaurant } from "@/lib/types";
 
 const DEFAULT_FILTERS: FilterState = {
@@ -33,7 +35,10 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortBy>("rating");
 
   useEffect(() => {
+    // One-time sync with the browser geolocation API (an external system),
+    // so the synchronous fallback here is intentional.
     if (!navigator.geolocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocationError("Geolocation not supported — using Singapore centre.");
       setLocation(SG_CENTER);
       return;
@@ -89,127 +94,142 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-stone-100">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-green-900 to-green-800 text-white py-6 px-4 shadow-lg">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-3xl font-black tracking-tight">
-            🍜 Jiak Simi Ah?
-          </h1>
-          <p className="text-green-200 text-sm mt-1">
+    <main className="flex-1">
+      {/* Top bar */}
+      <div className="max-w-2xl mx-auto px-4 pt-5 flex justify-end">
+        <GithubStarButton />
+      </div>
+
+      {/* Hero */}
+      <header className="px-4 pt-8 pb-8">
+        <div className="max-w-2xl mx-auto flex flex-col items-center text-center gap-4">
+          <Badge color="teal">🇸🇬 Singapore food decider</Badge>
+          <Text
+            size="display"
+            weight="semibold"
+            style={{ fontSize: "clamp(36px, 9vw, 56px)", lineHeight: 1.05 }}
+          >
+            Jiak Simi Ah? 🍜
+          </Text>
+          <Text size="lead" tone="muted" className="max-w-md">
             Cannot decide what to eat? Let us settle for you lah!
-          </p>
-          {location && !locationError && (
-            <p className="text-green-300 text-xs mt-1">📍 Using your location in Singapore</p>
-          )}
-          {locationError && (
-            <p className="text-green-300 text-xs mt-1">⚠️ {locationError}</p>
-          )}
+          </Text>
+          {(location && !locationError) || locationError ? (
+            <Text as="span" size="small" tone="muted">
+              {locationError ? `⚠️ ${locationError}` : "📍 Using your location in Singapore"}
+            </Text>
+          ) : null}
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 pb-10 flex flex-col gap-5">
         {/* Filter Panel */}
-        <div className="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
+        <Card tone="paper" radius="lg" elevation="soft" bordered className="overflow-hidden">
           <button
             onClick={() => setFiltersOpen((v) => !v)}
             className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer"
           >
-            <span className="font-bold text-green-900">🔍 Filters</span>
-            <span className="text-green-600 text-sm">{filtersOpen ? "▲ Hide" : "▼ Show"}</span>
+            <Text as="span" weight="semibold">🔍 Filters</Text>
+            <Text as="span" size="small" weight="medium" tone="accent">
+              {filtersOpen ? "Hide ▲" : "Show ▼"}
+            </Text>
           </button>
           {filtersOpen && (
-            <div className="px-5 pb-5 border-t border-green-50">
-              <div className="pt-4">
-                <FilterPanel filters={filters} onChange={setFilters} disabled={loading} />
-              </div>
+            <div className="px-5 pb-5 pt-4" style={{ borderTop: "1px solid var(--pz-line)" }}>
+              <FilterPanel filters={filters} onChange={setFilters} disabled={loading} />
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Search Button */}
-        <button
+        <Button
+          type="button"
+          variant="accent"
           onClick={search}
           disabled={loading || !location}
-          className="w-full bg-amber-400 text-green-900 font-black text-xl py-5 rounded-2xl shadow-lg hover:shadow-xl hover:bg-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer"
+          className="w-full justify-center !py-4 !text-lg !font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading
             ? "Searching... 🔍"
             : !location
             ? "Getting location..."
             : "Find Food! 🍽️"}
-        </button>
+        </Button>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
-            ⚠️ {error}
-          </div>
+          <Card
+            tone="paper"
+            radius="md"
+            bordered
+            style={{ borderColor: "color-mix(in srgb, var(--pz-orange) 45%, transparent)" }}
+          >
+            <div className="px-4 py-3">
+              <Text size="small" style={{ color: "var(--pz-orange)" }}>⚠️ {error}</Text>
+            </div>
+          </Card>
         )}
 
         {/* Results */}
         {searched && !loading && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {restaurants.length === 0 ? (
-              <div className="text-center py-12 text-green-600">
-                <p className="text-4xl mb-3">😩</p>
-                <p className="font-semibold">Wah, nothing found lah!</p>
-                <p className="text-sm mt-1">Try widening your filters or radius.</p>
-              </div>
+              <Card tone="cream" radius="lg">
+                <div className="text-center px-6 py-12">
+                  <div className="text-4xl mb-3">😩</div>
+                  <Text weight="semibold">Wah, nothing found lah!</Text>
+                  <Text size="small" tone="muted" className="mt-1">
+                    Try widening your filters or radius.
+                  </Text>
+                </div>
+              </Card>
             ) : (
               <>
-                {/* Results header + quick actions */}
-                <div className="flex items-center justify-between">
-                  <p className="text-green-800 font-semibold">
+                {/* Results header + lucky */}
+                <div className="flex items-center justify-between gap-3">
+                  <Text weight="semibold">
                     {restaurants.length} place{restaurants.length !== 1 ? "s" : ""} found!
-                  </p>
-                  <button
-                    onClick={lucky}
-                    className="text-sm bg-red-600 text-white font-bold px-3 py-1.5 rounded-full hover:bg-red-700 transition-colors cursor-pointer"
-                  >
+                  </Text>
+                  <Button type="button" variant="ink" size="sm" onClick={lucky}>
                     🎲 Feeling Lucky?
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Sort toggle */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-green-700 font-medium">Sort:</span>
+                  <Text as="span" size="small" tone="muted">Sort:</Text>
                   {(["rating", "distance"] as SortBy[]).map((opt) => (
-                    <button
+                    <Button
                       key={opt}
+                      type="button"
+                      size="sm"
+                      variant={sortBy === opt ? "accent" : "outline"}
                       onClick={() => setSortBy(opt)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                        sortBy === opt
-                          ? "bg-green-800 text-white"
-                          : "bg-stone-200 text-green-700 hover:bg-stone-300"
-                      }`}
                     >
                       {opt === "rating" ? "⭐ Rating" : "📍 Distance"}
-                    </button>
+                    </Button>
                   ))}
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-2 bg-green-100 p-1 rounded-xl">
-                  <button
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={tab === "list" ? "accent" : "outline"}
                     onClick={() => setTab("list")}
-                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                      tab === "list"
-                        ? "bg-white text-green-800 shadow-sm"
-                        : "text-green-600 hover:text-green-800"
-                    }`}
+                    className="flex-1 justify-center"
                   >
                     📋 List
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={tab === "spin" ? "accent" : "outline"}
                     onClick={() => setTab("spin")}
-                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                      tab === "spin"
-                        ? "bg-white text-green-800 shadow-sm"
-                        : "text-green-600 hover:text-green-800"
-                    }`}
+                    className="flex-1 justify-center"
                   >
                     🎰 Spin the Wheel
-                  </button>
+                  </Button>
                 </div>
 
                 {tab === "list" && (
@@ -240,8 +260,8 @@ export default function Home() {
         )}
       </div>
 
-      <footer className="text-center py-8 text-xs text-stone-400">
-        Made with ❤️ for hungry Singaporeans 🇸🇬
+      <footer className="text-center py-8">
+        <Text size="small" tone="muted">Made with ❤️ for hungry Singaporeans 🇸🇬</Text>
       </footer>
     </main>
   );

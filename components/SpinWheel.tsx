@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Restaurant } from "@/lib/types";
+import { Card, Text, Button } from "@/lib/pulze-ds";
 
 interface SpinWheelProps {
   restaurants: (Restaurant & { distanceKm: number })[];
@@ -16,9 +17,11 @@ export default function SpinWheel({ restaurants, onResult }: SpinWheelProps) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const interval = intervalRef;
+    const timeout = timeoutRef;
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (interval.current) clearInterval(interval.current);
+      if (timeout.current) clearTimeout(timeout.current);
     };
   }, []);
 
@@ -59,57 +62,76 @@ export default function SpinWheel({ restaurants, onResult }: SpinWheelProps) {
   };
 
   const current = restaurants[currentIndex];
+  const accent = done ? "var(--pz-purple)" : spinning ? "var(--pz-teal)" : "var(--pz-line)";
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Slot display */}
-      <div
-        className={`w-full max-w-sm bg-white border-4 rounded-2xl p-6 text-center transition-all duration-150 ${
-          spinning
-            ? "border-amber-400 shadow-lg shadow-amber-100"
-            : done
-            ? "border-red-500 shadow-xl shadow-red-100"
-            : "border-green-200"
-        }`}
+      {/* Slot display — padding lives on the inner wrapper, since pulze's
+          unlayered `.pz-card { padding }` overrides Tailwind utilities placed
+          directly on the Card. */}
+      <Card
+        tone="paper"
+        radius="lg"
+        elevation={spinning || done ? "lg" : "soft"}
+        bordered
+        className="w-full max-w-sm overflow-hidden transition-all"
+        style={{ borderColor: accent, borderWidth: 2 }}
       >
-        <div className={`text-5xl mb-3 transition-all ${spinning ? "animate-bounce" : ""}`}>
-          🎰
+        <div className="flex flex-col items-center justify-center text-center px-6 py-6">
+          <div className={`text-4xl mb-3 ${spinning ? "animate-bounce" : ""}`}>🎰</div>
+          {current ? (
+            <>
+              {/* Reserve ~2 lines so the box height stays steady as names cycle */}
+              <div className="flex w-full items-center justify-center" style={{ minHeight: "2.5em" }}>
+                <span
+                  className={`block w-full text-balance break-words line-clamp-3 font-semibold transition-all duration-100 ${
+                    spinning ? "blur-[1px]" : ""
+                  }`}
+                  style={{
+                    fontSize: "clamp(19px, 5vw, 24px)",
+                    lineHeight: 1.25,
+                    letterSpacing: "var(--pz-track-tight)",
+                  }}
+                >
+                  {current.name}
+                </span>
+              </div>
+              <Text size="small" tone="muted" className="mt-2.5">
+                <span style={{ color: "var(--pz-orange)" }}>
+                  {"★".repeat(Math.round(current.rating))}
+                </span>{" "}
+                {current.rating.toFixed(1)} · {current.reviewCount.toLocaleString()} reviews
+              </Text>
+              {done && (
+                <Text
+                  size="small"
+                  weight="semibold"
+                  className="mt-2 animate-pulse"
+                  style={{ color: "var(--pz-purple)" }}
+                >
+                  Jiak this lah! 🎉
+                </Text>
+              )}
+            </>
+          ) : (
+            <Text tone="muted">No restaurants yet</Text>
+          )}
         </div>
-        {current ? (
-          <>
-            <p
-              className={`font-bold text-xl text-gray-900 transition-all duration-100 ${
-                spinning ? "blur-[1px]" : ""
-              }`}
-            >
-              {current.name}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              {"★".repeat(Math.round(current.rating))} {current.rating.toFixed(1)} ·{" "}
-              {current.reviewCount.toLocaleString()} reviews
-            </p>
-            {done && (
-              <p className="mt-2 text-red-600 font-semibold text-sm animate-pulse">
-                Jiak this lah! 🎉
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="text-gray-400">No restaurants yet</p>
-        )}
-      </div>
+      </Card>
 
-      <button
+      <Button
+        type="button"
+        variant="accent"
         onClick={spin}
         disabled={spinning || restaurants.length === 0}
-        className="w-full max-w-sm bg-amber-400 text-green-900 font-bold py-4 px-8 rounded-2xl text-lg shadow-lg hover:shadow-xl hover:bg-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+        className="w-full max-w-sm justify-center !py-4 !text-lg !font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {spinning ? "Spinning... 🌀" : done ? "Spin Again! 🎰" : "🎰 Spin the Wheel!"}
-      </button>
+      </Button>
 
-      <p className="text-xs text-green-600">
+      <Text size="small" tone="muted">
         {restaurants.length} restaurant{restaurants.length !== 1 ? "s" : ""} in the pool
-      </p>
+      </Text>
     </div>
   );
 }

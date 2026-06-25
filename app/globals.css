@@ -1,19 +1,29 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f5f0e8;
-  --foreground: #1c1917;
-}
-
+/* Bridge the pulze-ds (--pz-*) tokens into Tailwind utilities so layout code
+   can use `bg-cream`, `text-muted`, `ring-teal`, etc. The values resolve at
+   runtime from the :root block shipped in lib/pulze-ds/styles.css. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--pz-paper);
+  --color-cream: var(--pz-cream);
+  --color-ink: var(--pz-ink);
+  --color-muted: var(--pz-muted);
+  --color-line: var(--pz-line);
+  --color-teal: var(--pz-teal);
+  --color-cyan: var(--pz-cyan);
+  --color-purple: var(--pz-purple);
+  --color-orange: var(--pz-orange);
+
+  --font-sans: var(--pz-font);
+
+  --radius-pz-sm: var(--pz-r-sm);
+  --radius-pz-md: var(--pz-r-md);
+  --radius-pz-lg: var(--pz-r-lg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background: var(--pz-cream);
+  color: var(--pz-ink);
+  font-family: var(--pz-font);
+  letter-spacing: var(--pz-track-snug);
 }

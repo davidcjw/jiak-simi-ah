@@ -15,6 +15,43 @@ Singapore-only food decider. User grants geolocation → filters (cuisine, price
 - **Next.js 16** (App Router) with **Tailwind CSS v4** (`@import "tailwindcss"` syntax — no `tailwind.config.ts`)
 - **React 19** — use `"use client"` only where browser APIs or state are needed; the API route is server-side
 - **TypeScript strict mode**
+- **pulze-ds** design system (clean light SaaS look) — see *Design system* below
+
+## Design system
+
+The UI is built on **pulze-ds** (reverse-extracted from pulze.io: white/cream surfaces,
+near-black ink, teal/cyan/purple/orange accents, Inter type, soft-shadow card elevation).
+
+- **Vendored** as a built bundle in `lib/pulze-ds/` (`index.js` + `index.d.ts` + `styles.css`),
+  so the app stays self-contained and Vercel-deployable (the source package lives at
+  `~/code/design-systems/pulze-ds` and is **not** a repo dependency).
+- **Import components** from `@/lib/pulze-ds`: `Card`, `Text`, `Button`, `Badge`, `Heading`,
+  `Tag`, `AccentIcon`, `FeatureRow`, `BlogCard`. `Card` + `Text` are the primitives; compose
+  from them. Build new UI from these, not bespoke Tailwind chrome.
+- **Tokens** are `--pz-*` CSS custom properties (in `styles.css`). `app/globals.css` bridges
+  the colour tokens into Tailwind (`bg-cream`, `text-muted`, `ring-teal`, `accent-teal`…) and
+  sets the page background/font. `styles.css` is imported once in `app/layout.tsx` (global).
+- **To refresh the DS**: rebuild the source package (`npm run build` there) and copy
+  `dist/{pulze-ds.js → index.js, index.d.ts, pulze-ds.css → styles.css}` into `lib/pulze-ds/`.
+- Accents available: `teal` (brand default), `cyan`, `purple`, `orange`. There is no red/grey
+  accent — warnings reuse `--pz-orange`; "Closed"/neutral chips use `Tag`.
+
+### Cascade gotcha (important)
+
+pulze-ds ships **unlayered** CSS, but Tailwind v4 utilities live in `@layer utilities`.
+Per the cascade-layers rule, **unlayered styles beat layered ones regardless of source
+order** — so a Tailwind utility placed directly on a pulze element is silently dropped when
+it conflicts with that element's own property:
+
+- A Tailwind `px-*`/`py-*`/`p-*` on `<Card>` is **ignored** (`.pz-card { padding }` wins, =0).
+  → Put padding on an **inner wrapper `<div>`**, or use the Card's `pad` prop (`--pz-card-pad`).
+- A Tailwind `ring-*`/`shadow-*` on `<Card>` is **ignored** (`.pz-card` sets `box-shadow` for
+  elevation). → Use an inline `outline`/`border` style for highlight rings (e.g. picked state).
+- `bg-*`/`text-color` on `<Card>` likewise lose to `.pz-card--<tone>`. Use the `tone` prop.
+
+Utilities that don't collide with a pulze-owned property (`overflow-hidden`, `flex-1`,
+`w-full`, margins on children, layout on non-pulze elements) work fine. `!important`
+utilities (`!py-4`) and **inline `style`** both beat unlayered CSS when you must override.
 
 ## Key files
 
@@ -27,6 +64,7 @@ Singapore-only food decider. User grants geolocation → filters (cuisine, price
 | `components/SpinWheel.tsx` | Slot-machine style randomiser; calls `onResult` callback when done |
 | `lib/types.ts` | Shared interfaces (`Restaurant`, `FilterState`, `PlacesApiPlace`, etc.) |
 | `lib/cuisines.ts` | Cuisine list with Google Places `includedTypes` mappings; also `RADIUS_OPTIONS` and price level maps |
+| `lib/pulze-ds/` | Vendored pulze-ds design system (built bundle + types + compiled CSS) — see *Design system* |
 
 ## API route contract
 
@@ -63,6 +101,10 @@ Each cuisine in `lib/cuisines.ts` maps an ID (e.g. `"japanese"`) to one or more 
 - Do not call the Google Places API directly from the client — always go through `/api/places`.
 - Do not add a `tailwind.config.ts` — this project uses Tailwind v4's CSS-based config.
 - Do not change the `@import "tailwindcss"` in `globals.css` to the v3 `@tailwind` directives.
+- Do not hand-edit files in `lib/pulze-ds/` — they are a generated build artifact. Change the
+  source package and re-copy (see *Design system*).
+- Do not reintroduce the old hawker green/amber Tailwind palette — build UI from pulze-ds
+  primitives and `--pz-*` tokens.
 
 ## Running locally
 

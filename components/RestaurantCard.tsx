@@ -1,6 +1,7 @@
 "use client";
 
 import { Restaurant } from "@/lib/types";
+import { Card, Text, Tag, Badge, Button } from "@/lib/pulze-ds";
 import Image from "next/image";
 
 interface RestaurantCardProps {
@@ -11,10 +12,10 @@ interface RestaurantCardProps {
 function PriceTag({ level }: { level: number | null }) {
   if (level === null) return null;
   return (
-    <span className="text-green-600 font-semibold text-sm">
+    <Text as="span" size="small" weight="semibold" style={{ color: "var(--pz-teal)" }}>
       {"$".repeat(level)}
-      <span className="text-green-200">{"$".repeat(Math.max(0, 3 - level))}</span>
-    </span>
+      <span style={{ color: "var(--pz-line-strong)" }}>{"$".repeat(Math.max(0, 3 - level))}</span>
+    </Text>
   );
 }
 
@@ -22,10 +23,12 @@ function Stars({ rating }: { rating: number }) {
   const full = Math.floor(rating);
   const half = rating % 1 >= 0.5;
   return (
-    <span className="text-yellow-400 text-sm">
+    <span style={{ color: "var(--pz-orange)", fontSize: "var(--pz-fs-small)", letterSpacing: "0.5px" }}>
       {"★".repeat(full)}
       {half && "½"}
-      <span className="text-gray-200">{"★".repeat(Math.max(0, 5 - full - (half ? 1 : 0)))}</span>
+      <span style={{ color: "var(--pz-line-strong)" }}>
+        {"★".repeat(Math.max(0, 5 - full - (half ? 1 : 0)))}
+      </span>
     </span>
   );
 }
@@ -37,15 +40,20 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
       : `${r.distanceKm.toFixed(1)}km`;
 
   return (
-    <div
-      className={`bg-white rounded-2xl overflow-hidden shadow-sm border transition-all hover:shadow-md ${
+    <Card
+      tone="paper"
+      radius="lg"
+      elevation="soft"
+      interactive
+      className="overflow-hidden"
+      style={
         highlight
-          ? "border-red-500 ring-2 ring-red-300 shadow-red-100"
-          : "border-green-100"
-      }`}
+          ? { outline: "2px solid var(--pz-purple)", outlineOffset: "2px" }
+          : undefined
+      }
     >
       {/* Photo */}
-      <div className="relative h-40 bg-green-50">
+      <div className="relative h-44" style={{ background: "var(--pz-cream)" }}>
         {r.photoReference ? (
           <Image
             src={r.photoReference}
@@ -56,74 +64,75 @@ export default function RestaurantCard({ restaurant: r, highlight }: RestaurantC
             unoptimized
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-5xl opacity-30">🍽️</div>
-        )}
-        {r.isOpenNow !== null && (
-          <span
-            className={`absolute top-2 right-2 text-xs font-semibold px-2 py-0.5 rounded-full ${
-              r.isOpenNow
-                ? "bg-green-500 text-white"
-                : "bg-red-400 text-white"
-            }`}
-          >
-            {r.isOpenNow ? "Open" : "Closed"}
-          </span>
+          <div className="h-full flex items-center justify-center text-5xl opacity-20">🍽️</div>
         )}
         {highlight && (
-          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-            ✨ Picked!
+          <span className="absolute top-3 left-3">
+            <Badge color="purple" solid>✨ Picked!</Badge>
+          </span>
+        )}
+        {r.isOpenNow !== null && (
+          <span className="absolute top-3 right-3">
+            {r.isOpenNow ? (
+              <Badge color="teal" solid>Open</Badge>
+            ) : (
+              <Tag>Closed</Tag>
+            )}
           </span>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-gray-900 leading-tight">{r.name}</h3>
-          <PriceTag level={r.priceLevel} />
+      <div className="p-5 flex flex-col gap-2.5">
+        <div className="flex items-start justify-between gap-3">
+          <Text size="lead" weight="semibold" className="leading-snug">{r.name}</Text>
+          <span className="shrink-0 pt-1"><PriceTag level={r.priceLevel} /></span>
         </div>
 
-        {r.primaryType && (
-          <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full border border-green-100">
-            {r.primaryType}
-          </span>
-        )}
+        {r.primaryType && <span><Tag>{r.primaryType}</Tag></span>}
 
         <div className="flex items-center gap-2">
           <Stars rating={r.rating} />
-          <span className="text-sm text-gray-600">
-            {r.rating.toFixed(1)} <span className="text-gray-400">({r.reviewCount.toLocaleString()})</span>
-          </span>
+          <Text as="span" size="small" tone="muted">
+            <span style={{ color: "var(--pz-ink)", fontWeight: 600 }}>{r.rating.toFixed(1)}</span>{" "}
+            ({r.reviewCount.toLocaleString()})
+          </Text>
         </div>
 
         {r.editorialSummary && (
-          <p className="text-xs text-gray-500 line-clamp-2">{r.editorialSummary}</p>
+          <Text size="small" tone="muted" className="line-clamp-2">{r.editorialSummary}</Text>
         )}
 
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-gray-400">📍 {distLabel} away</span>
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <Text as="span" size="small" tone="muted">📍 {distLabel} away</Text>
+          <div className="flex items-center gap-3">
             {r.websiteUri && (
-              <a
+              <Text
+                as="a"
+                size="small"
+                weight="medium"
+                tone="accent"
                 href={r.websiteUri}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-green-700 hover:underline"
+                className="hover:underline"
               >
                 Website
-              </a>
+              </Text>
             )}
-            <a
+            <Button
+              as="a"
               href={r.googleMapsUri}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs bg-green-800 text-white px-2 py-1 rounded-lg hover:bg-green-900 transition-colors"
+              variant="accent"
+              size="sm"
             >
               Maps →
-            </a>
+            </Button>
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
