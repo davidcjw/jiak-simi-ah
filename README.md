@@ -1,5 +1,7 @@
 # 🍜 Jiak Simi Ah?
 
+[![CI](https://github.com/davidcjw/jiak-simi-ah/actions/workflows/ci.yml/badge.svg)](https://github.com/davidcjw/jiak-simi-ah/actions/workflows/ci.yml)
+
 > *"Jiak Simi Ah?"* — Singlish for "What to eat?"
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-jiak--simi--ah.vercel.app-orange?style=flat-square&logo=vercel)](https://jiak-simi-ah.vercel.app)
